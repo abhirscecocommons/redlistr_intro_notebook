@@ -1,0 +1,24 @@
+# Local secrets
+.Renviron
+.env
+.env.*
+!.env.example
+
+# R session artifacts
+.Rhistory
+.RData
+.Ruserdata
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+# personal memo file (not checked into repo)
+memo.txt
+
+# common R artifacts
+Rplots.pdf
+
+# Notebook noisy outputs (ignore literal captured messages)
+gridUncertaintySimulation not available for this input class in current redlistr version.
+Error: object 'reef_area_2000' not found
+Traceback: Error in UseMethod("makeAOOGrid", input.data): no applicable method for 'makeAOOGrid' applied to an object of class "SpatRaster"
+Traceback:
