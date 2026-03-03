@@ -54,11 +54,39 @@ if (!file.exists(reef_sample_path)) {
   }, silent = TRUE)
 }
 
-# Create a small synthetic occupancy raster (30 x 20 cells)
-reef_crs <- "EPSG:32755"
-reef_mat <- matrix(sample(c(NA, 1), 600, replace = TRUE, prob = c(0.55, 0.45)), nrow = 30, ncol = 20)
-reef_2000_spat <- terra::rast(reef_mat, crs = reef_crs)
-terra::ext(reef_2000_spat) <- c(0, 6000, 0, 9000)
+# Load 2000 raster (either downloaded or example)
+reef_2000_spat <- try(terra::rast(reef_sample_path), silent = TRUE)
+if (inherits(reef_2000_spat, "try-error")) {
+  message("Failed to read sample raster; falling back to synthetic data.")
+  reef_2000_spat <- NULL
+}
+
+# If we don't have a valid 2000 raster, create synthetic data
+if (is.null(reef_2000_spat)) {
+  # Create a small synthetic occupancy raster (30 x 20 cells)
+  reef_crs <- "EPSG:32755"
+  reef_mat <- matrix(sample(c(NA, 1), 600, replace = TRUE, prob = c(0.55, 0.45)), nrow = 30, ncol = 20)
+  reef_2000_spat <- terra::rast(reef_mat, crs = reef_crs)
+  terra::ext(reef_2000_spat) <- c(0, 6000, 0, 9000)
+  message("Generated synthetic reef_2000 raster.")
+}
+
+# For 2020, if we loaded a sample file for 2000 we create a modified version to
+# simulate change; otherwise just copy the synthetic raster.
+if (file.exists(reef_sample_path)) {
+  # perturb the 2000 raster: randomly flip ~10% of occupied cells to NA
+  reef_2020_spat <- reef_2000_spat
+  vals <- terra::values(reef_2020_spat)
+  idx <- which(vals == 1)
+  nflip <- floor(length(idx) * 0.1)
+  if (nflip > 0) vals[sample(idx, nflip)] <- NA
+  terra::values(reef_2020_spat) <- vals
+  # optionally save modified 2020 file
+  try(terra::writeRaster(reef_2020_spat, sub("\\.tif$", "_2020.tif", reef_sample_path), overwrite = TRUE), silent = TRUE)
+  message("Created modified 2020 raster by perturbing sample.")
+} else {
+  reef_2020_spat <- reef_2000_spat
+}
 
 # Save small GeoTIFF sample (overwrites to keep reproducible)
 try(terra::writeRaster(reef_2000_spat, reef_sample_path, overwrite = TRUE), silent = TRUE)
@@ -91,11 +119,19 @@ safe_run <- function(expr, label) {
   res
 }
 
-# AOO: try with terra SpatRaster then raster
-reef_aoo_2000 <- safe_run(quote(getAOO(reef_2000_spat, grid.size = 1000, min.percent.rule = TRUE, percent = 1)), "getAOO (SpatRaster)")
-if (is.null(reef_aoo_2000)) {
-  reef_aoo_2000 <- safe_run(quote(getAOO(reef_2000_raster, grid.size = 1000, min.percent.rule = TRUE, percent = 1)), "getAOO (RasterLayer)")
+# Convert SpatRaster objects to RasterLayer once and then use raster methods
+if (exists("reef_2000_spat") && !exists("reef_2000_raster")) {
+  reef_2000_raster <- try(raster::raster(reef_2000_spat), silent = TRUE)
 }
+if (exists("reef_2020_spat") && !exists("reef_2020_raster")) {
+  reef_2020_raster <- try(raster::raster(reef_2020_spat), silent = TRUE)
+}
+
+# AOO: compute only using RasterLayer (SpatRaster dispatch unsupported)
+reef_aoo_2000 <- safe_run(
+  quote(getAOO(reef_2000_raster, grid.size = 1000, min.percent.rule = TRUE, percent = 1)),
+  "getAOO (RasterLayer)"
+)
 
 # makeAOOGrid (may require RasterLayer dispatch)
 reef_aoo_grid <- safe_run(quote(makeAOOGrid(reef_2000_raster, grid.size = 1000, min.percent.rule = TRUE, percent = 1)), "makeAOOGrid (RasterLayer)")
@@ -112,8 +148,9 @@ if (!is.null(reef_eoo_poly)) {
 reef_area_2000 <- safe_run(quote(getArea(reef_2000_raster)), "getArea 2000")
 reef_area_2020 <- safe_run(quote(getArea(reef_2020_raster)), "getArea 2020")
 
-# Area change
-reef_area_change <- safe_run(quote(getAreaChange(reef_2000_raster, reef_2020_raster)), "getAreaChange")
+# Area change / loss
+# redlistr exports `getAreaLoss` which computes total area lost between rasters
+reef_area_change <- safe_run(quote(getAreaLoss(reef_2000_raster, reef_2020_raster)), "getAreaLoss")
 
 # Decline stats (use numeric values)
 a_t1 <- as.numeric(reef_area_2000)
@@ -124,8 +161,10 @@ if (!is.na(a_t1) && !is.na(a_t2)) {
   message("Skipping decline stats — area values missing.")
 }
 
-# Grid uncertainty simulation (small replicates for speed)
-reef_uncertainty <- safe_run(quote(gridUncertaintySimulation(input.data = reef_2000_raster, grid.size = 1000, simulations = 5, min.percent.rule = FALSE, percent = 1)), "gridUncertaintySimulation")
+# Grid uncertainty – use available functions `gridUncertainty` or
+# `gridUncertaintyRandom` (the former returns uncertainty metrics,
+# the latter performs basic Monte Carlo).
+reef_uncertainty <- safe_run(quote(gridUncertainty(input.data = reef_2000_raster, grid.size = 1000, n.AOO.improvement = 10)), "gridUncertainty")
 
 # Small plot of area trend
 reef_trend <- data.frame(year = c(2000, 2020), area_km2 = c(as.numeric(reef_area_2000), as.numeric(reef_area_2020)))

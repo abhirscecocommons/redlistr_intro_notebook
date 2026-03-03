@@ -21,4 +21,3 @@ Rplots.pdf
 gridUncertaintySimulation not available for this input class in current redlistr version.
 Error: object 'reef_area_2000' not found
 Traceback: Error in UseMethod("makeAOOGrid", input.data): no applicable method for 'makeAOOGrid' applied to an object of class "SpatRaster"
-Traceback:
