@@ -518,50 +518,9 @@ values(reef_2020_raster)“,”idx_2020 &lt;- which(vals_2020 ==
 1)“,”nflip_2020 &lt;- floor(length(idx_2020) * 0.1)“,”if (nflip_2020
 &gt; 0) vals_2020[sample(idx_2020, nflip_2020)] &lt;-
 NA“,”values(reef_2020_raster) &lt;- vals_2020” ] }, { “cell_type”:
-“code”, “execution_count”: 122, “id”: “910d3835”, “metadata”: {
-“vscode”: { “languageId”: “r” } }, “outputs”: [ { “ename”: “ERROR”,
-“evalue”: “Error in parse(text = input): attempt to use zero-length
-variable name”, “output_type”: “error”, “traceback”: [ “Error in
-parse(text = input): attempt to use zero-length variable name:” ] } ],
-“source”: [ “# Set reproducible random seed”, “set.seed(42)”, “”, “#
-Output data directory”, “dir.create(&quot;data&quot;, showWarnings = FALSE)”,
-“reef_sample_path &lt;- file.path(&quot;data&quot;, &quot;reef_sample.tif&quot;)”, “”, “#
-Load sample raster from <code>raster</code> package if demo file doesn’t
-exist.”, “# This provides a real but lightweight example without
-external downloads.”, “if (!file.exists(reef_sample_path)) {”, ” try(“,”
-{“,” sample_r &lt;- raster::raster(system.file(&quot;external/test.grd&quot;,
-package = &quot;raster&quot;))“,” raster::writeRaster(sample_r, reef_sample_path,
-overwrite = TRUE)“,” message(&quot;Wrote example raster from raster::test.grd
-to &quot;, reef_sample_path)“,” },“,” silent = TRUE“,” )“,”}“,”“,”# Try
-loading the sample raster as a terra::SpatRaster“,”reef_2000_spat &lt;-
-try(terra::rast(reef_sample_path), silent = TRUE)“,”if
-(inherits(reef_2000_spat, &quot;try-error&quot;)) {“,” message(&quot;Failed to read
-sample raster; generating synthetic data.&quot;)“,” reef_2000_spat &lt;-
-NULL“,”}“,”“,”# If no raster exists, create synthetic occupancy maps (1
-= occupied, NA = unoccupied)“,”if (is.null(reef_2000_spat)) {“,”
-reef_crs &lt;- &quot;EPSG:32755&quot;“,” reef_mat &lt;- matrix(sample(c(NA, 1),
-600, replace = TRUE, prob = c(0.55, 0.45)), nrow = 30, ncol = 20)“,”
-reef_2000_spat &lt;- terra::rast(reef_mat, crs = reef_crs)“,”
-terra::ext(reef_2000_spat) &lt;- c(0, 6000, 0, 9000)“,”
-message(&quot;Generated synthetic reef_2000 raster (30 x 20
-cells).&quot;)“,”}“,”“,”# Create 2020 raster by perturbing the 2000 raster
-(~10% of occupied cells become unoccupied)“,”reef_2020_spat &lt;-
-reef_2000_spat“,”vals &lt;- terra::values(reef_2020_spat)“,”idx &lt;-
-which(vals == 1)“,”nflip &lt;- floor(length(idx) * 0.1)“,”if (nflip &gt;
-0) vals[sample(idx, nflip)] &lt;- NA“,”terra::values(reef_2020_spat)
-&lt;- vals“,”message(&quot;Created 2020 raster by perturbing sample
-(simulating 10% habitat loss).&quot;)“,”“,”# Save sample
-TIFF“,”try(terra::writeRaster(reef_2000_spat, reef_sample_path,
-overwrite = TRUE), silent = TRUE)“,”“,”# Convert to RasterLayer for
-redlistr compatibility“,”# (redlistr was designed for
-raster::RasterLayer, not terra::SpatRaster)“,”reef_2000_raster &lt;-
-raster::raster(reef_sample_path)“,”reef_2020_raster &lt;-
-raster::raster(reef_2000_raster)“,”vals_2020 &lt;-
-raster::values(reef_2020_raster)“,”idx_2020 &lt;- which(vals_2020 ==
-1)“,”nflip_2020 &lt;- floor(length(idx_2020) * 0.1)“,”if (nflip_2020
-&gt; 0) vals_2020[sample(idx_2020, nflip_2020)] &lt;-
-NA“,”raster::values(reef_2020_raster) &lt;- vals_2020“,”“,”# Quick
-inspection“,”reef_2000_raster” ] }, { “cell_type”: “code”,
+“markdown”, “id”: “c0f64c37”, “metadata”: {}, “source”: [ “<em>Duplicate
+raster setup block removed; the prior R code cell above now handles data
+generation and conversion.</em>” ] }, { “cell_type”: “code”,
 “execution_count”: null, “id”: “fab84635”, “metadata”: { “vscode”: {
 “languageId”: “r” } }, “outputs”: [ { “ename”: “ERROR”, “evalue”: “Error
 in UseMethod(&quot;makeAOOGrid&quot;, input.data): no applicable method for
