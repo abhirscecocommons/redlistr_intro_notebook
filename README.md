@@ -15,3 +15,35 @@ https://cran.r-project.org/web/packages/redlistr/index.html (see the reference m
 function list: https://cran.r-project.org/web/packages/redlistr/refman/redlistr.html).
 
 
+## Usage
+
+1. **Install prerequisites**: ensure you have R (>=4.1) and the following packages installed in R:
+   ```r
+   install.packages(c("terra","raster","ggplot2","rredlist","redlistr","rmarkdown"))
+   ```
+   Optionally supply an `IUCN_REDLIST_KEY` environment variable if you want to test the API call.
+
+2. **Generate sample data and run the analysis**:
+   ```sh
+   Rscript scripts/notebook_code.R
+   ```
+   This creates or updates `data/reef_sample.tif` and produces console output confirming each
+   function executed successfully.
+
+3. **Render the teaching notebook to HTML**:
+   ```sh
+   Rscript -e "rmarkdown::render('Intro_to_redlistRpackipynb.ipynb', \
+      output_format='html_document', output_file='docs/index.html')"
+   ```
+   The resulting page is suitable for publication via GitHub Pages.
+
+4. **Publish via GitHub Pages** (optional):
+   ```sh
+   bash scripts/publish_pages.sh
+   ```
+   This pushes `docs/` to the `gh-pages` branch.  Enable Pages in your repository settings if
+   not already active.
+
+The codebase is designed so that the R script is the single source of truth; cells in the
+notebook mirror the commands in `scripts/notebook_code.R`.
+
