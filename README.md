@@ -37,13 +37,6 @@ function list: https://cran.r-project.org/web/packages/redlistr/refman/redlistr.
    ```
    The resulting page is suitable for publication via GitHub Pages.
 
-4. **Publish via GitHub Pages** (optional):
-   ```sh
-   bash scripts/publish_pages.sh
-   ```
-   This pushes `docs/` to the `gh-pages` branch.  Enable Pages in your repository settings if
-   not already active.
-
-The codebase is designed so that the R script is the single source of truth; cells in the
-notebook mirror the commands in `scripts/notebook_code.R`.
+4. **Publish via GitHub Pages** (live now):
+   (https://abhirscecocommons.github.io/redlistr_intro_notebook/)
 
