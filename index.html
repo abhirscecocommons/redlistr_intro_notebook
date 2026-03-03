@@ -906,16 +906,18 @@ base::quote(eval(expr, . envir)))” ] } ], “source”: [ “# === Grid
 uncertainty extension ===”, “# redlistr offers
 <code>gridUncertainty</code> (metric summary) and”, “#
 <code>gridUncertaintyRandom</code> (Monte Carlo randomization).”, “#
-We’ll demonstrate the simple summary function here.”, “”,
-“reef_uncertainty &lt;- safe_run(”, ” quote(gridUncertainty(input.data =
-reef_2000_raster, grid.size = 1000)),“,” &quot;gridUncertainty&quot;“,”)” ] }, {
-“cell_type”: “markdown”, “id”: “6fec0754”, “metadata”: {}, “source”: [
-“## 13) Quick checklist”, “”, “1. Prepare/validate spatial inputs and
-CRS.”, “2. Compute AOO and EOO.”, “3. Estimate area change and decline
-statistics.”, “4. Run uncertainty checks.”, “5. Document assumptions and
-cite methods.” ] }, { “cell_type”: “markdown”, “id”: “d27f6121”,
-“metadata”: {}, “source”: [ “## 14) Troubleshooting”, “”, “- If
-<code>redlistr</code> install fails, verify CRAN connectivity and
+We’ll demonstrate the simple summary function here; it requires”, “# the
+number of grid improvements to attempt
+(<code>n.AOO.improvement</code>).”, “”, “reef_uncertainty &lt;-
+safe_run(”, ” quote(gridUncertainty(input.data = reef_2000_raster,
+grid.size = 1000, n.AOO.improvement = 10)),“,” &quot;gridUncertainty&quot;“,”)” ]
+}, { “cell_type”: “markdown”, “id”: “6fec0754”, “metadata”: {},
+“source”: [ “## 13) Quick checklist”, “”, “1. Prepare/validate spatial
+inputs and CRS.”, “2. Compute AOO and EOO.”, “3. Estimate area change
+and decline statistics.”, “4. Run uncertainty checks.”, “5. Document
+assumptions and cite methods.” ] }, { “cell_type”: “markdown”, “id”:
+“d27f6121”, “metadata”: {}, “source”: [ “## 14) Troubleshooting”, “”, “-
+If <code>redlistr</code> install fails, verify CRAN connectivity and
 library write permissions.”, “- If API check fails, confirm
 <code>IUCN_REDLIST_KEY</code> exists in <code>.env</code> or
 <code>.Renviron</code>.”, “- If spatial results look wrong, verify grid
